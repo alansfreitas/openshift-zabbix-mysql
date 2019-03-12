@@ -1,0 +1,175 @@
+apiVersion: template.openshift.io/v1
+kind: Template
+metadata:
+  creationTimestamp: null
+  name: openshift-zabbix-mysql
+objects:
+- apiVersion: image.openshift.io/v1
+  kind: ImageStream
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    generation: 1
+    labels:
+      app: openshift-zabbix-mysql
+    name: openshift-zabbix-mysql
+  spec:
+    lookupPolicy:
+      local: false
+    tags:
+    - annotations: null
+      from:
+        kind: DockerImage
+        name: docker-registry.default.svc:5000/zabbix/openshift-zabbix-mysql:latest
+      generation: null
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: ""
+  status:
+    dockerImageRepository: ""
+- apiVersion: build.openshift.io/v1
+  kind: BuildConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: openshift-zabbix-mysql
+    name: openshift-zabbix-mysql
+  spec:
+    failedBuildsHistoryLimit: 5
+    nodeSelector: null
+    output:
+      to:
+        kind: ImageStreamTag
+        name: openshift-zabbix-mysql:latest
+    postCommit: {}
+    resources: {}
+    runPolicy: Serial
+    source:
+      git:
+        uri: https://github.com/alansfreitas/openshift-zabbix-mysql.git
+      type: Git
+    strategy:
+      sourceStrategy:
+        from:
+          kind: ImageStreamTag
+          name: mysql:5.7
+          namespace: openshift
+      type: Source
+    successfulBuildsHistoryLimit: 5
+    triggers:
+    - github:
+        secret: 9iyYJ4BjeIGahTUDNgQU
+      type: GitHub
+    - generic:
+        secret: xSz-73RNUdmtV6s_FRBx
+      type: Generic
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
+  status:
+    lastVersion: 0
+- apiVersion: apps.openshift.io/v1
+  kind: DeploymentConfig
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    generation: 2
+    labels:
+      app: openshift-zabbix-mysql
+    name: openshift-zabbix-mysql
+  spec:
+    replicas: 1
+    revisionHistoryLimit: 10
+    selector:
+      app: openshift-zabbix-mysql
+      deploymentconfig: openshift-zabbix-mysql
+    strategy:
+      activeDeadlineSeconds: 21600
+      resources: {}
+      rollingParams:
+        intervalSeconds: 1
+        maxSurge: 25%
+        maxUnavailable: 25%
+        timeoutSeconds: 600
+        updatePeriodSeconds: 1
+      type: Rolling
+    template:
+      metadata:
+        annotations:
+          openshift.io/generated-by: OpenShiftNewApp
+        creationTimestamp: null
+        labels:
+          app: openshift-zabbix-mysql
+          deploymentconfig: openshift-zabbix-mysql
+      spec:
+        containers:
+        - env:
+          - name: MYSQL_DATABASE
+            value: zabbix
+          - name: MYSQL_PASSWORD
+            value: zabbix
+          - name: MYSQL_ROOT_PASSWORD
+            value: zabbix
+          - name: MYSQL_USER
+            value: zabbix
+          image: docker-registry.default.svc:5000/zabbix/openshift-zabbix-mysql@sha256:9cef5c85f4cd04a57d9131721d784c38d8a4fdf70d0cf446f7ecda698d5c9f08
+          imagePullPolicy: Always
+          name: openshift-zabbix-mysql
+          ports:
+          - containerPort: 3306
+            protocol: TCP
+          resources: {}
+          terminationMessagePath: /dev/termination-log
+          terminationMessagePolicy: File
+        dnsPolicy: ClusterFirst
+        restartPolicy: Always
+        schedulerName: default-scheduler
+        securityContext: {}
+        terminationGracePeriodSeconds: 30
+    test: false
+    triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: true
+        containerNames:
+        - openshift-zabbix-mysql
+        from:
+          kind: ImageStreamTag
+          name: openshift-zabbix-mysql:latest
+          namespace: zabbix
+        lastTriggeredImage: docker-registry.default.svc:5000/zabbix/openshift-zabbix-mysql@sha256:9cef5c85f4cd04a57d9131721d784c38d8a4fdf70d0cf446f7ecda698d5c9f08
+      type: ImageChange
+  status:
+    availableReplicas: 0
+    latestVersion: 0
+    observedGeneration: 0
+    replicas: 0
+    unavailableReplicas: 0
+    updatedReplicas: 0
+- apiVersion: v1
+  kind: Service
+  metadata:
+    annotations:
+      openshift.io/generated-by: OpenShiftNewApp
+    creationTimestamp: null
+    labels:
+      app: openshift-zabbix-mysql
+    name: openshift-zabbix-mysql
+  spec:
+    ports:
+    - name: 3306-tcp
+      port: 3306
+      protocol: TCP
+      targetPort: 3306
+    selector:
+      app: openshift-zabbix-mysql
+      deploymentconfig: openshift-zabbix-mysql
+    sessionAffinity: None
+    type: ClusterIP
+  status:
+    loadBalancer: {}
