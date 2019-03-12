@@ -273,6 +273,13 @@
       "description": "Version of MySQL image to be used (5.7, or latest).",
       "value": "5.7",
       "required": true
+    },
+    {
+      "name": "SOURCE_REPOSITORY_URL",
+      "displayName": "Git Repository URL",
+      "description": "The URL of the repository with your application source code.",
+      "required": true,
+      "value": "https://github.com/alansfreitas/openshift-zabbix-mysql.git"
     }
   ]
 }
