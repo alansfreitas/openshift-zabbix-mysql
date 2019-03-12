@@ -141,6 +141,8 @@
           "to": {
             "kind": "ImageStreamTag",
             "name": "${NAME}:latest"
+          }
+        }, 
           },
                 "readinessProbe": {
                   "timeoutSeconds": 1,
